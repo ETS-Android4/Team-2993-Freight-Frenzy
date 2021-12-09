@@ -21,8 +21,6 @@ public class Hardware {
     public static final double cpi = cpr / (4 * Math.PI); //Counts per Inch//
     public final DcMotorEx frontRight, backRight, backLeft, frontLeft, lift, intake;
     public final Servo dropServo;
-    public final TouchSensor liftTouch;
-    public final DistanceSensor distanceLeft, distanceRight;
     public final BNO055IMU imu;
     float right_stick_y;
     float left_stick_y;
@@ -72,9 +70,6 @@ public class Hardware {
         imu.initialize(params);
         dropServo = map.get(Servo.class, "Servo1");
         dropServo.setDirection(Servo.Direction.FORWARD);
-        liftTouch = map.get(TouchSensor.class, "Touch1");
-        distanceLeft = map.get(DistanceSensor.class, "Distance1");
-        distanceRight = map.get(DistanceSensor.class, "Distance2");
     }
 
     public double getHeading() {
@@ -139,9 +134,6 @@ public class Hardware {
     }
 
     public void intakeCalc(double speed) {
-        if (liftTouch.getValue() == 1) {
-            deadZoneIntake = 0;
-        } else if (liftTouch.getValue() == 0) {
             if (a) {
                 deadZoneIntake = speed;
             } else if (y) {
@@ -149,7 +141,6 @@ public class Hardware {
             } else {
                 deadZoneIntake = 0;
             }
-        }
         intake.setPower(deadZoneIntake);
     }
 
@@ -173,13 +164,6 @@ public class Hardware {
         dropServo.setPosition(deadZoneDropServo);
     }
 
-    public void teleOp() {
-        driveCalc(.85);
-        strafe(.45);
-        intakeCalc(.85);
-        liftCalc(.9, .5);
-        dropCalc();
-    }
 
     public void goForward(double speed, int in) {
         frontRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
@@ -200,8 +184,7 @@ public class Hardware {
         backLeft.setPower(speed);
         frontLeft.setPower(speed);
         while (frontRight.isBusy() && backRight.isBusy() && frontLeft.isBusy() && backLeft.isBusy()) {
-            distanceLeft.getDistance(DistanceUnit.INCH);
-            distanceRight.getDistance(DistanceUnit.INCH);
+            int busy = 1;
         }
         frontRight.setPower(0);
         backRight.setPower(0);
@@ -232,8 +215,7 @@ public class Hardware {
         backLeft.setPower(-speed);
         frontLeft.setPower(-speed);
         while (frontRight.isBusy() && backRight.isBusy() && frontLeft.isBusy() && backLeft.isBusy()) {
-            distanceLeft.getDistance(DistanceUnit.INCH);
-            distanceRight.getDistance(DistanceUnit.INCH);
+            int busy = 1;
         }
         frontRight.setPower(0);
         backRight.setPower(0);
@@ -264,8 +246,7 @@ public class Hardware {
         backLeft.setPower(speed);
         frontLeft.setPower(-speed);
         while (frontRight.isBusy() && backRight.isBusy() && frontLeft.isBusy() && backLeft.isBusy()) {
-            distanceLeft.getDistance(DistanceUnit.INCH);
-            distanceRight.getDistance(DistanceUnit.INCH);
+            int busy = 1;
         }
         frontRight.setPower(0);
         backRight.setPower(0);
@@ -296,8 +277,7 @@ public class Hardware {
         backLeft.setPower(-speed);
         frontLeft.setPower(speed);
         while (frontRight.isBusy() && backRight.isBusy() && frontLeft.isBusy() && backLeft.isBusy()) {
-            distanceLeft.getDistance(DistanceUnit.INCH);
-            distanceRight.getDistance(DistanceUnit.INCH);
+            int busy = 1;
         }
         frontRight.setPower(0);
         backRight.setPower(0);
@@ -330,8 +310,7 @@ public class Hardware {
             frontLeft.setPower(-speed);
         }
         while (frontRight.isBusy() && backRight.isBusy() && frontLeft.isBusy() && backLeft.isBusy()) {
-            distanceLeft.getDistance(DistanceUnit.INCH);
-            distanceRight.getDistance(DistanceUnit.INCH);
+            int busy = 1;
         }
         frontRight.setPower(0);
         backRight.setPower(0);
@@ -364,8 +343,7 @@ public class Hardware {
             frontLeft.setPower(speed);
         }
         while (frontRight.isBusy() && backRight.isBusy() && frontLeft.isBusy() && backLeft.isBusy()) {
-            distanceLeft.getDistance(DistanceUnit.INCH);
-            distanceRight.getDistance(DistanceUnit.INCH);
+            int busy = 1;
         }
         frontRight.setPower(0);
         backRight.setPower(0);

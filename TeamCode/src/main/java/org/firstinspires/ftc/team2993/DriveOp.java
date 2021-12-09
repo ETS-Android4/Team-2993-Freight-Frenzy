@@ -42,7 +42,11 @@ public class DriveOp extends OpMode {
 
     @Override
     public void loop() {
-        robot.teleOp();
+        robot.driveCalc(.85);
+        robot.strafe(.45);
+        robot.intakeCalc(.85);
+        robot.liftCalc(.9, .5);
+        robot.dropCalc();
         telemetry.addData("Status", "Run Time: " + runtime.toString());
         telemetry.addData("Status:", "Running the Tele-Operation Functions");
         telemetry.update();

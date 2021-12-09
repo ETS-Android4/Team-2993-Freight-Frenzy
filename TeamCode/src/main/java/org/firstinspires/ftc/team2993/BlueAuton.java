@@ -3,7 +3,7 @@ package org.firstinspires.ftc.team2993;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "Blue Autonomous")
+@com.qualcomm.robotcore.eventloop.opmode.Autonomous(name = "Blue Autonomous (DON'T USE)")
 public class BlueAuton extends OpMode {
     private final ElapsedTime runtime = new ElapsedTime();
     public Hardware robot;
