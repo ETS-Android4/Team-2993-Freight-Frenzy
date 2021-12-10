@@ -44,48 +44,42 @@ public class TestOpMode extends OpMode {
 
     @Override
     public void loop() {
-        liftCalc(.30);
+        lift(.30);
         drive(.85);
-        intakeCalc(1);
-        turnCalc(1);
+        intake(1);
+        turn(1);
         telemetry.addData("Status", "Running");
         telemetry.update();
     }
 
-    public void drive(double speed) {
-        if (Math.abs(gamepad1.left_stick_x) < 0.05) {
+    public void drive(double driveSpeed) {
+        if (Math.abs(gamepad1.right_stick_x) > .05) {
+            deadZoneX = gamepad1.right_stick_x;
+        } else if(Math.abs(gamepad1.left_stick_y) > .05){
+            deadZoneY = gamepad1.left_stick_y;
+        } else{
             deadZoneX = 0;
-        } else {
-            deadZoneX = -gamepad1.left_stick_x;
-        }
-        if (Math.abs(gamepad1.right_stick_y) < 0.05) {
             deadZoneY = 0;
-        } else {
-            deadZoneY = gamepad1.right_stick_y;
         }
-        final double v1 = deadZoneX + deadZoneY;
-        final double v2 = deadZoneX - deadZoneY;
-        frontRight.setPower(v1 * speed);
-        frontLeft.setPower(v2 * speed);
-        backRight.setPower(v1 * speed);
-        backLeft.setPower(v2 * speed);
+        final double left = deadZoneX + deadZoneY;
+        final double right = deadZoneX - deadZoneY;
+        frontLeft.setPower(left*driveSpeed);
+        backLeft.setPower(left*driveSpeed);
+        frontRight.setPower(right*driveSpeed);
+        backRight.setPower(right*driveSpeed);
     }
 
     public void driveCalc(double speed) {
 
         if (Math.abs(gamepad1.left_stick_x) < 0.05) {
             deadZoneX = 0;
-        } else {
-            deadZoneX = -gamepad1.left_stick_x;
-        }
-        if (Math.abs(gamepad1.left_stick_y) < 0.05) {
+        } else if (Math.abs(gamepad1.left_stick_y) < 0.05) {
             deadZoneY = 0;
-        } else {
-            deadZoneY = gamepad1.left_stick_y;
-        }
-        if (Math.abs(gamepad1.right_stick_x) < 0.05) {
+        } else if (Math.abs(gamepad1.right_stick_x) < 0.05) {
             deadZoneRotate = 0;
         } else {
+            deadZoneY = gamepad1.left_stick_y;
+            deadZoneX = -gamepad1.left_stick_x;
             deadZoneRotate = gamepad1.right_stick_x;
         }
         double r = Math.hypot(deadZoneX, -deadZoneY);
@@ -101,7 +95,7 @@ public class TestOpMode extends OpMode {
         backLeft.setPower(v4 * speed);
     }
 
-    public void liftCalc(double speed) {
+    public void lift(double speed) {
         double deadZoneRB;
         double deadZoneLB;
         if (gamepad1.a) {
@@ -119,7 +113,7 @@ public class TestOpMode extends OpMode {
         liftRight.setPower(v1 * speed);
     }
 
-    public void intakeCalc(double speed) {
+    public void intake(double speed) {
         double deadZoneRT;
         double deadZoneLT;
         if (gamepad1.right_trigger < .05) {
@@ -136,7 +130,7 @@ public class TestOpMode extends OpMode {
         intake.setPower(v1 * speed);
     }
 
-    public void turnCalc(double speed) {
+    public void turn(double speed) {
         double deadZoneA;
         double deadZoneX;
         if (gamepad1.a) {
