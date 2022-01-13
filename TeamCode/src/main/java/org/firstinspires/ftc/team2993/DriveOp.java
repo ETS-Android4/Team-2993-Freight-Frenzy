@@ -3,7 +3,7 @@ package org.firstinspires.ftc.team2993;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "Drive Op")
+@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "Don't-Use-Op")
 public class DriveOp extends OpMode {
     private final ElapsedTime runtime = new ElapsedTime();
     public Hardware robot;
@@ -42,11 +42,6 @@ public class DriveOp extends OpMode {
 
     @Override
     public void loop() {
-        robot.driveCalc(.85);
-        robot.strafe(.45);
-        robot.intakeCalc(.85);
-        robot.liftCalc(.9, .5);
-        robot.dropCalc();
         telemetry.addData("Status", "Run Time: " + runtime.toString());
         telemetry.addData("Status:", "Running the Tele-Operation Functions");
         telemetry.update();

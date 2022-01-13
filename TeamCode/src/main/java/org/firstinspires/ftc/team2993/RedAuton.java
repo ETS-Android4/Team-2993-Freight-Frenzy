@@ -1,17 +1,29 @@
 package org.firstinspires.ftc.team2993;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@com.qualcomm.robotcore.eventloop.opmode.Autonomous(name = "Red Autonomous (DON'T USE)")
+@Autonomous(name = "Red Autonomous")
 public class RedAuton extends OpMode {
     private final ElapsedTime runtime = new ElapsedTime();
-    public Hardware robot;
+    public static final int cpr = 1680; //Counts per Revolution//
+    public static final double cpi = cpr / (4 * Math.PI); //Counts per Inch//
+    private DcMotorEx frontRight = null, backRight = null, backLeft = null, frontLeft = null;
     @Override
     public void init() {
-        robot = new Hardware(hardwareMap);
-        telemetry.addData("Status:", "Robot Hardware Initialized");
-        telemetry.addData("Status:", "Waiting to Start the Match:");
+        telemetry.addData("Status", "Initializing");
+        frontRight = hardwareMap.get(DcMotorEx.class, "MotorC0");
+        frontRight.setDirection(DcMotorEx.Direction.REVERSE);
+        backRight = hardwareMap.get(DcMotorEx.class, "MotorC1");
+        backRight.setDirection(DcMotorEx.Direction.REVERSE);
+        backLeft = hardwareMap.get(DcMotorEx.class, "MotorC2");
+        backLeft.setDirection(DcMotorEx.Direction.FORWARD);
+        frontLeft = hardwareMap.get(DcMotorEx.class, "MotorC3");
+        frontLeft.setDirection(DcMotorEx.Direction.FORWARD);
+        telemetry.addData("Status", "Initialized");
         telemetry.update();
     }
 
@@ -21,14 +33,44 @@ public class RedAuton extends OpMode {
 
     @Override
     public void start() {
-        runtime.reset();
+        goForward(50,48);
     }
 
     @Override
     public void loop() {
-        robot.redAuton();
         telemetry.addData("Status", "Run Time: " + runtime.toString());
         telemetry.addData("Status:", "Running the Tele-Operation Functions");
         telemetry.update();
+    }
+
+    public void goForward(double speed, int in) {
+        frontRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        frontLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        int target = (int) (in * cpi);
+        frontRight.setTargetPosition(target);
+        backRight.setTargetPosition(target);
+        backLeft.setTargetPosition(target);
+        frontLeft.setTargetPosition(target);
+        frontRight.setPower(speed);
+        backRight.setPower(speed);
+        backLeft.setPower(speed);
+        frontLeft.setPower(speed);
+        while (frontRight.isBusy() && backRight.isBusy() && frontLeft.isBusy() && backLeft.isBusy()) {
+            telemetry.addData("Status:", "Forwards");
+        }
+        frontRight.setPower(0);
+        backRight.setPower(0);
+        backLeft.setPower(0);
+        frontLeft.setPower(0);
+        frontRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        frontLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
     }
 }

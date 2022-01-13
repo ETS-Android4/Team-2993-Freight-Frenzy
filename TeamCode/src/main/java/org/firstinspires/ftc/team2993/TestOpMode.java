@@ -1,35 +1,46 @@
 package org.firstinspires.ftc.team2993;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
+import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp(name = "Andy TeleOp")
+@TeleOp(name = "TeleOp")
 public class TestOpMode extends OpMode {
     double deadZoneX;
     double deadZoneY;
-    double deadZoneRotate;
-    private DcMotorEx frontRight = null, backRight = null, backLeft = null, frontLeft = null, liftLeft = null, liftRight = null, intake = null, turn = null;
-
+    private final ElapsedTime runtime = new ElapsedTime();
+    private DcMotorEx frontRight = null, backRight = null, backLeft = null, frontLeft = null, lift = null, intake = null, turn = null;
+    private DistanceSensor distanceLeft, distanceRight;
+    private TouchSensor liftTouch;
+    private BNO055IMU imu;
     @Override
     public void init() {
         telemetry.addData("Status", "Initializing");
         frontRight = hardwareMap.get(DcMotorEx.class, "MotorC0");
-        frontRight.setDirection(DcMotorEx.Direction.REVERSE);
+        frontRight.setDirection(DcMotorEx.Direction.FORWARD);
         backRight = hardwareMap.get(DcMotorEx.class, "MotorC1");
-        backRight.setDirection(DcMotorEx.Direction.REVERSE);
+        backRight.setDirection(DcMotorEx.Direction.FORWARD);
         backLeft = hardwareMap.get(DcMotorEx.class, "MotorC2");
-        backLeft.setDirection(DcMotorEx.Direction.FORWARD);
+        backLeft.setDirection(DcMotorEx.Direction.REVERSE);
         frontLeft = hardwareMap.get(DcMotorEx.class, "MotorC3");
-        frontLeft.setDirection(DcMotorEx.Direction.FORWARD);
-        liftLeft = hardwareMap.get(DcMotorEx.class, "MotorE0");
-        liftLeft.setDirection(DcMotorEx.Direction.REVERSE);
-        liftRight = hardwareMap.get(DcMotorEx.class, "MotorE1");
-        liftRight.setDirection(DcMotorEx.Direction.FORWARD);
-        intake = hardwareMap.get(DcMotorEx.class, "MotorE2");
+        frontLeft.setDirection(DcMotorEx.Direction.REVERSE);
+        lift = hardwareMap.get(DcMotorEx.class, "MotorE0");
+        lift.setDirection(DcMotorEx.Direction.REVERSE);
+        intake = hardwareMap.get(DcMotorEx.class, "MotorE1");
         intake.setDirection(DcMotorEx.Direction.FORWARD);
-        turn = hardwareMap.get(DcMotorEx.class, "MotorE3");
+        turn = hardwareMap.get(DcMotorEx.class, "MotorE2");
         turn.setDirection(DcMotorEx.Direction.FORWARD);
+        //distanceLeft = hardwareMap.get(DistanceSensor.class, "Distance1");
+        //distanceRight = hardwareMap.get(DistanceSensor.class, "Distance2");
+        //liftTouch = hardwareMap.get(TouchSensor.class, "Touch1");
+        imu = hardwareMap.get(BNO055IMU.class, "IMU");
+        BNO055IMU.Parameters params = new BNO055IMU.Parameters();
+        imu.initialize(params);
         telemetry.addData("Status", "Initialized");
         telemetry.update();
     }
@@ -40,23 +51,30 @@ public class TestOpMode extends OpMode {
 
     @Override
     public void start() {
+        runtime.reset();
     }
 
     @Override
     public void loop() {
-        lift(.30);
+        lift(1);
         drive(.85);
         intake(1);
         turn(1);
+        telemetry.addData("Status", "Run Time: " + runtime.toString());
         telemetry.addData("Status", "Running");
         telemetry.update();
     }
 
+    public void reset() {
+        lift.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        lift.setPower(0);
+        lift.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+    }
     public void drive(double driveSpeed) {
         if (Math.abs(gamepad1.right_stick_x) > .05) {
-            deadZoneX = gamepad1.right_stick_x;
+            deadZoneY = gamepad1.right_stick_x;
         } else if(Math.abs(gamepad1.left_stick_y) > .05){
-            deadZoneY = gamepad1.left_stick_y;
+            deadZoneX = -gamepad1.left_stick_y;
         } else{
             deadZoneX = 0;
             deadZoneY = 0;
@@ -69,62 +87,33 @@ public class TestOpMode extends OpMode {
         backRight.setPower(right*driveSpeed);
     }
 
-    public void driveCalc(double speed) {
-
-        if (Math.abs(gamepad1.left_stick_x) < 0.05) {
-            deadZoneX = 0;
-        } else if (Math.abs(gamepad1.left_stick_y) < 0.05) {
-            deadZoneY = 0;
-        } else if (Math.abs(gamepad1.right_stick_x) < 0.05) {
-            deadZoneRotate = 0;
-        } else {
-            deadZoneY = gamepad1.left_stick_y;
-            deadZoneX = -gamepad1.left_stick_x;
-            deadZoneRotate = gamepad1.right_stick_x;
-        }
-        double r = Math.hypot(deadZoneX, -deadZoneY);
-        double robotAngle = Math.atan2(-deadZoneY, deadZoneX) - Math.PI / 4;
-        double rightX = deadZoneRotate / 1.25;
-        final double v1 = r * Math.cos(robotAngle) + rightX;
-        final double v2 = r * Math.sin(robotAngle) - rightX;
-        final double v3 = r * Math.sin(robotAngle) + rightX;
-        final double v4 = r * Math.cos(robotAngle) - rightX;
-        frontRight.setPower(v1 * speed);
-        frontLeft.setPower(v2 * speed);
-        backRight.setPower(v3 * speed);
-        backLeft.setPower(v4 * speed);
-    }
-
-    public void lift(double speed) {
-        double deadZoneRB;
-        double deadZoneLB;
+    public void lift(double speed){
+        double deadZoneA;
+        double deadZoneY;
         if (gamepad1.a) {
-            deadZoneRB = 1;
-            deadZoneLB = 0;
+            deadZoneA = 1;
+            deadZoneY = 0;
         } else if (gamepad1.y) {
-            deadZoneLB = -1;
-            deadZoneRB = 0;
+            deadZoneY = -1;
+            deadZoneA = 0;
         } else {
-            deadZoneRB = 0;
-            deadZoneLB = 0;
+            deadZoneA = 0;
+            deadZoneY = 0;
         }
-        final double v1 = deadZoneLB + deadZoneRB;
-        liftLeft.setPower(v1 * speed);
-        liftRight.setPower(v1 * speed);
+        final double v1 = deadZoneA + deadZoneY;
+        lift.setPower(v1 * speed);
     }
 
     public void intake(double speed) {
-        double deadZoneRT;
-        double deadZoneLT;
-        if (gamepad1.right_trigger < .05) {
-            deadZoneRT = gamepad1.right_trigger;
+        double deadZoneRT = 0;
+        double deadZoneLT = 0;
+        if (gamepad1.right_trigger > .05) {
+            deadZoneRT = gam
+        epad1.right_trigger;
             deadZoneLT = 0;
-        } else if (gamepad1.left_trigger < .05) {
+        } else if (gamepad1.left_trigger > .05) {
             deadZoneLT = -gamepad1.left_trigger;
             deadZoneRT = 0;
-        } else {
-            deadZoneRT = 0;
-            deadZoneLT = 0;
         }
         final double v1 = deadZoneLT + deadZoneRT;
         intake.setPower(v1 * speed);
@@ -133,10 +122,10 @@ public class TestOpMode extends OpMode {
     public void turn(double speed) {
         double deadZoneA;
         double deadZoneX;
-        if (gamepad1.a) {
+        if (gamepad1.b) {
             deadZoneA = 1;
             deadZoneX = 0;
-        } else if (gamepad1.y) {
+        } else if (gamepad1.x) {
             deadZoneX = -1;
             deadZoneA = 0;
         } else {
@@ -145,31 +134,5 @@ public class TestOpMode extends OpMode {
         }
         final double v1 = deadZoneA + deadZoneX;
         turn.setPower(v1 * speed);
-    }
-
-    public void strafe(double speed) {
-        if (Math.abs(deadZoneX) < .05 && Math.abs(deadZoneY) < .05 && Math.abs(deadZoneRotate) < .05) {
-            if (gamepad1.dpad_right) {
-                frontRight.setPower(-speed);
-                backRight.setPower(speed);
-                backLeft.setPower(-speed);
-                frontLeft.setPower(speed);
-            } else if (gamepad1.dpad_left) {
-                frontRight.setPower(speed);
-                backRight.setPower(-speed);
-                backLeft.setPower(speed);
-                frontLeft.setPower(-speed);
-            } else if (gamepad1.dpad_down) {
-                frontRight.setPower(speed);
-                backRight.setPower(speed);
-                backLeft.setPower(speed);
-                frontLeft.setPower(speed);
-            } else if (gamepad1.dpad_up) {
-                frontRight.setPower(-speed);
-                backRight.setPower(-speed);
-                backLeft.setPower(-speed);
-                frontLeft.setPower(-speed);
-            }
-        }
     }
 }

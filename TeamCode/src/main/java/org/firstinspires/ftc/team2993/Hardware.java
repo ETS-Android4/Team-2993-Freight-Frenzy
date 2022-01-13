@@ -7,21 +7,19 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
-
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-
 public class Hardware {
     public static final int cpr = 1680; //Counts per Revolution//
     public static final double cpi = cpr / (4 * Math.PI); //Counts per Inch//
-    public final DcMotorEx frontRight, backRight, backLeft, frontLeft, lift, intake;
-    public final Servo dropServo;
-    public final BNO055IMU imu;
+    public final DcMotorEx frontRight, backRight, backLeft, frontLeft, lift, intake, turner;
+    private DistanceSensor distanceLeft, distanceRight;
+    private TouchSensor liftTouch;
+    private BNO055IMU imu;
     float right_stick_y;
     float left_stick_y;
     float right_stick_x;
@@ -41,43 +39,39 @@ public class Hardware {
     double deadZoneX;
     double deadZoneY;
     double deadZoneRotate;
-    double deadZoneLift;
     double deadZoneIntake;
-    double deadZoneDropServo;
+    double deadZoneLift;
+    String status;
 
     public Hardware(@NonNull HardwareMap map) {
         frontRight = map.get(DcMotorEx.class, "MotorC0");
-        backRight = map.get(DcMotorEx.class, "MotorC1");
-        backLeft = map.get(DcMotorEx.class, "MotorC2");
-        frontLeft = map.get(DcMotorEx.class, "MotorC3");
-        lift = map.get(DcMotorEx.class, "MotorE0");
-        intake = map.get(DcMotorEx.class, "MotorE1");
         frontRight.setDirection(DcMotorEx.Direction.REVERSE);
+        backRight = map.get(DcMotorEx.class, "MotorC1");
         backRight.setDirection(DcMotorEx.Direction.REVERSE);
+        backLeft = map.get(DcMotorEx.class, "MotorC2");
         backLeft.setDirection(DcMotorEx.Direction.FORWARD);
+        frontLeft = map.get(DcMotorEx.class, "MotorC3");
         frontLeft.setDirection(DcMotorEx.Direction.FORWARD);
+        lift = map.get(DcMotorEx.class, "MotorE0");
         lift.setDirection(DcMotorEx.Direction.FORWARD);
+        intake = map.get(DcMotorEx.class, "MotorE1");
         intake.setDirection(DcMotorEx.Direction.FORWARD);
-        frontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        frontLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        intake.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
+        turner = map.get(DcMotorEx.class, "MotorE2");
+        turner.setDirection(DcMotorEx.Direction.FORWARD);
+        distanceLeft = map.get(DistanceSensor.class, "Distance1");
+        distanceRight = map.get(DistanceSensor.class, "Distance2");
+        liftTouch = map.get(TouchSensor.class, "Touch1");
         imu = map.get(BNO055IMU.class, "IMU");
         BNO055IMU.Parameters params = new BNO055IMU.Parameters();
         imu.initialize(params);
-        dropServo = map.get(Servo.class, "Servo1");
-        dropServo.setDirection(Servo.Direction.FORWARD);
     }
 
-    public double getHeading() {
-        Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.XYZ, AngleUnit.DEGREES);
+    public double getHeading(AngleUnit angleUnit) {
+        Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.XYZ, angleUnit);
         return angles.firstAngle;
     }
 
-    public void driveCalc(double speed) {
+    public void mecchanumDriveCalc(double speed) {
 
         if (Math.abs(left_stick_x) < 0.05) {
             deadZoneX = 0;
@@ -107,32 +101,22 @@ public class Hardware {
         backLeft.setPower(v4 * speed);
     }
 
-    public void strafe(double speed) {
-        if (Math.abs(deadZoneX) < .05 && Math.abs(deadZoneY) < .05 && Math.abs(deadZoneRotate) < .05) {
-            if (dpad_right) {
-                frontRight.setPower(-speed);
-                backRight.setPower(speed);
-                backLeft.setPower(-speed);
-                frontLeft.setPower(speed);
-            } else if (dpad_left) {
-                frontRight.setPower(speed);
-                backRight.setPower(-speed);
-                backLeft.setPower(speed);
-                frontLeft.setPower(-speed);
-            } else if (dpad_down) {
-                frontRight.setPower(speed);
-                backRight.setPower(speed);
-                backLeft.setPower(speed);
-                frontLeft.setPower(speed);
-            } else if (dpad_up) {
-                frontRight.setPower(-speed);
-                backRight.setPower(-speed);
-                backLeft.setPower(-speed);
-                frontLeft.setPower(-speed);
-            }
+    public void drive(double driveSpeed) {
+        if (Math.abs(right_stick_x) > .05) {
+            deadZoneX = right_stick_x;
+        } else if(Math.abs(left_stick_y) > .05){
+            deadZoneY = left_stick_y;
+        } else{
+            deadZoneX = 0;
+            deadZoneY = 0;
         }
+        final double left = deadZoneX + deadZoneY;
+        final double right = deadZoneX - deadZoneY;
+        frontLeft.setPower(left*driveSpeed);
+        backLeft.setPower(left*driveSpeed);
+        frontRight.setPower(right*driveSpeed);
+        backRight.setPower(right*driveSpeed);
     }
-
     public void intakeCalc(double speed) {
             if (a) {
                 deadZoneIntake = speed;
@@ -155,16 +139,6 @@ public class Hardware {
         lift.setPower(deadZoneLift);
     }
 
-    public void dropCalc() {
-        if (left_bumper) {
-            deadZoneDropServo = .5;
-        } else if (right_bumper) {
-            deadZoneDropServo = 0;
-        }
-        dropServo.setPosition(deadZoneDropServo);
-    }
-
-
     public void goForward(double speed, int in) {
         frontRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         backRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
@@ -184,7 +158,7 @@ public class Hardware {
         backLeft.setPower(speed);
         frontLeft.setPower(speed);
         while (frontRight.isBusy() && backRight.isBusy() && frontLeft.isBusy() && backLeft.isBusy()) {
-            int busy = 1;
+           status = "Forwards";
         }
         frontRight.setPower(0);
         backRight.setPower(0);
@@ -215,7 +189,7 @@ public class Hardware {
         backLeft.setPower(-speed);
         frontLeft.setPower(-speed);
         while (frontRight.isBusy() && backRight.isBusy() && frontLeft.isBusy() && backLeft.isBusy()) {
-            int busy = 1;
+            status = "Backwards";
         }
         frontRight.setPower(0);
         backRight.setPower(0);
@@ -246,7 +220,7 @@ public class Hardware {
         backLeft.setPower(speed);
         frontLeft.setPower(-speed);
         while (frontRight.isBusy() && backRight.isBusy() && frontLeft.isBusy() && backLeft.isBusy()) {
-            int busy = 1;
+            status = "Strafing Left";
         }
         frontRight.setPower(0);
         backRight.setPower(0);
@@ -277,7 +251,7 @@ public class Hardware {
         backLeft.setPower(-speed);
         frontLeft.setPower(speed);
         while (frontRight.isBusy() && backRight.isBusy() && frontLeft.isBusy() && backLeft.isBusy()) {
-            int busy = 1;
+            status = "Strafing Right";
         }
         frontRight.setPower(0);
         backRight.setPower(0);
@@ -303,14 +277,12 @@ public class Hardware {
         backRight.setTargetPosition(target);
         backLeft.setTargetPosition(target);
         frontLeft.setTargetPosition(target);
-        if (getHeading() > (getHeading() + 90)) {
-            frontRight.setPower(speed);
-            backRight.setPower(speed);
-            backLeft.setPower(-speed);
-            frontLeft.setPower(-speed);
-        }
+        frontRight.setPower(-speed);
+        backRight.setPower(speed);
+        backLeft.setPower(-speed);
+        frontLeft.setPower(speed);
         while (frontRight.isBusy() && backRight.isBusy() && frontLeft.isBusy() && backLeft.isBusy()) {
-            int busy = 1;
+            status = "Turning Left";
         }
         frontRight.setPower(0);
         backRight.setPower(0);
@@ -336,14 +308,12 @@ public class Hardware {
         backRight.setTargetPosition(target);
         backLeft.setTargetPosition(target);
         frontLeft.setTargetPosition(target);
-        if (getHeading() < (getHeading() + 90)) {
-            frontRight.setPower(-speed);
-            backRight.setPower(-speed);
-            backLeft.setPower(speed);
-            frontLeft.setPower(speed);
-        }
+        frontRight.setPower(-speed);
+        backRight.setPower(speed);
+        backLeft.setPower(-speed);
+        frontLeft.setPower(speed);
         while (frontRight.isBusy() && backRight.isBusy() && frontLeft.isBusy() && backLeft.isBusy()) {
-            int busy = 1;
+            status = "Strafing Right";
         }
         frontRight.setPower(0);
         backRight.setPower(0);
@@ -355,7 +325,7 @@ public class Hardware {
         frontLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
     }
 
-    public void stopDrive() {
+    public void stopResetDrive() {
         frontLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         frontRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         backLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
@@ -372,13 +342,11 @@ public class Hardware {
 
     public void redAuton() {
         goForward(50, 12);
-        strafeLeft(50, 12);
-        stopDrive();
+        stopResetDrive();
     }
 
     public void blueAuton() {
         goForward(50, 12);
-        strafeRight(50, 12);
-        stopDrive();
+        stopResetDrive();
     }
 }
