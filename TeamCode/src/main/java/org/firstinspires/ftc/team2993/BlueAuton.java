@@ -2,9 +2,7 @@ package org.firstinspires.ftc.team2993;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Autonomous(name = "Blue Autonomous")
@@ -34,7 +32,7 @@ public class BlueAuton extends OpMode {
 
     @Override
     public void start() {
-        goForward(50,48);
+        goForward(.5,48);
     }
 
     @Override
@@ -58,10 +56,10 @@ public class BlueAuton extends OpMode {
         backRight.setPower(speed);
         backLeft.setPower(speed);
         frontLeft.setPower(speed);
-        frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        frontRight.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        backRight.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        backLeft.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        frontLeft.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         while (frontRight.isBusy() && backRight.isBusy() && frontLeft.isBusy() && backLeft.isBusy()) {
             telemetry.addData("Status:", "Forwards");
         }

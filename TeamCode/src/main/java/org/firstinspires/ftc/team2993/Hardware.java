@@ -3,7 +3,6 @@ package org.firstinspires.ftc.team2993;
 import androidx.annotation.NonNull;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -11,7 +10,6 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 public class Hardware {
     public static final int cpr = 1680; //Counts per Revolution//
@@ -20,29 +18,9 @@ public class Hardware {
     private DistanceSensor distanceLeft, distanceRight;
     private TouchSensor liftTouch;
     private BNO055IMU imu;
-    float right_stick_y;
-    float left_stick_y;
-    float right_stick_x;
-    float left_stick_x;
-    float right_trigger;
-    float left_trigger;
-    boolean left_bumper;
-    boolean right_bumper;
-    boolean a;
-    boolean b;
-    boolean x;
-    boolean y;
-    boolean dpad_right;
-    boolean dpad_left;
-    boolean dpad_up;
-    boolean dpad_down;
-    double deadZoneX;
-    double deadZoneY;
-    double deadZoneRotate;
-    double deadZoneIntake;
-    double deadZoneLift;
-    String status;
-
+    float right_stick_y, left_stick_y, right_stick_x, left_stick_x, right_trigger, left_trigger;
+    boolean left_bumper, right_bumper, a, b, x, y, dpad_right, dpad_left, dpad_up, dpad_down;
+    double deadZoneX, deadZoneY, deadZoneRotate, deadZoneIntake, deadZoneLift;
     public Hardware(@NonNull HardwareMap map) {
         frontRight = map.get(DcMotorEx.class, "MotorC0");
         frontRight.setDirection(DcMotorEx.Direction.REVERSE);
@@ -139,214 +117,9 @@ public class Hardware {
         lift.setPower(deadZoneLift);
     }
 
-    public void goForward(double speed, int in) {
-        frontRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        backRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        frontLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        int target = (int) (in * cpi);
-        frontRight.setTargetPosition(target);
-        backRight.setTargetPosition(target);
-        backLeft.setTargetPosition(target);
-        frontLeft.setTargetPosition(target);
-        frontRight.setPower(speed);
-        backRight.setPower(speed);
-        backLeft.setPower(speed);
-        frontLeft.setPower(speed);
-        while (frontRight.isBusy() && backRight.isBusy() && frontLeft.isBusy() && backLeft.isBusy()) {
-           status = "Forwards";
-        }
-        frontRight.setPower(0);
-        backRight.setPower(0);
-        backLeft.setPower(0);
-        frontLeft.setPower(0);
-        frontRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        backRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        frontLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-    }
-
-    public void goBackward(double speed, int in) {
-        frontRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        backRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        frontLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        int target = (int) (in * cpi);
-        frontRight.setTargetPosition(target);
-        backRight.setTargetPosition(target);
-        backLeft.setTargetPosition(target);
-        frontLeft.setTargetPosition(target);
-        frontRight.setPower(-speed);
-        backRight.setPower(-speed);
-        backLeft.setPower(-speed);
-        frontLeft.setPower(-speed);
-        while (frontRight.isBusy() && backRight.isBusy() && frontLeft.isBusy() && backLeft.isBusy()) {
-            status = "Backwards";
-        }
-        frontRight.setPower(0);
-        backRight.setPower(0);
-        backLeft.setPower(0);
-        frontLeft.setPower(0);
-        frontRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        backRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        frontLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-    }
-
-    public void strafeLeft(double speed, int in) {
-        frontRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        backRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        frontLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        int target = (int) (in * cpi);
-        frontRight.setTargetPosition(target);
-        backRight.setTargetPosition(target);
-        backLeft.setTargetPosition(target);
-        frontLeft.setTargetPosition(target);
-        frontRight.setPower(speed);
-        backRight.setPower(-speed);
-        backLeft.setPower(speed);
-        frontLeft.setPower(-speed);
-        while (frontRight.isBusy() && backRight.isBusy() && frontLeft.isBusy() && backLeft.isBusy()) {
-            status = "Strafing Left";
-        }
-        frontRight.setPower(0);
-        backRight.setPower(0);
-        backLeft.setPower(0);
-        frontLeft.setPower(0);
-        frontRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        backRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        frontLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-    }
-
-    public void strafeRight(double speed, int in) {
-        frontRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        backRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        frontLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        int target = (int) (in * cpi);
-        frontRight.setTargetPosition(target);
-        backRight.setTargetPosition(target);
-        backLeft.setTargetPosition(target);
-        frontLeft.setTargetPosition(target);
-        frontRight.setPower(-speed);
-        backRight.setPower(speed);
-        backLeft.setPower(-speed);
-        frontLeft.setPower(speed);
-        while (frontRight.isBusy() && backRight.isBusy() && frontLeft.isBusy() && backLeft.isBusy()) {
-            status = "Strafing Right";
-        }
-        frontRight.setPower(0);
-        backRight.setPower(0);
-        backLeft.setPower(0);
-        frontLeft.setPower(0);
-        frontRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        backRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        frontLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-    }
-
-    public void turnLeft(double speed, int in) {
-        frontRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        backRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        frontLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        int target = (int) (in * cpi);
-        frontRight.setTargetPosition(target);
-        backRight.setTargetPosition(target);
-        backLeft.setTargetPosition(target);
-        frontLeft.setTargetPosition(target);
-        frontRight.setPower(-speed);
-        backRight.setPower(speed);
-        backLeft.setPower(-speed);
-        frontLeft.setPower(speed);
-        while (frontRight.isBusy() && backRight.isBusy() && frontLeft.isBusy() && backLeft.isBusy()) {
-            status = "Turning Left";
-        }
-        frontRight.setPower(0);
-        backRight.setPower(0);
-        backLeft.setPower(0);
-        frontLeft.setPower(0);
-        frontRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        backRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        frontLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-    }
-
-    public void turnRight(double speed, int in) {
-        frontRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        backRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        frontLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        int target = (int) (in * cpi);
-        frontRight.setTargetPosition(target);
-        backRight.setTargetPosition(target);
-        backLeft.setTargetPosition(target);
-        frontLeft.setTargetPosition(target);
-        frontRight.setPower(-speed);
-        backRight.setPower(speed);
-        backLeft.setPower(-speed);
-        frontLeft.setPower(speed);
-        while (frontRight.isBusy() && backRight.isBusy() && frontLeft.isBusy() && backLeft.isBusy()) {
-            status = "Strafing Right";
-        }
-        frontRight.setPower(0);
-        backRight.setPower(0);
-        backLeft.setPower(0);
-        frontLeft.setPower(0);
-        frontRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        backRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        frontLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-    }
-
-    public void stopResetDrive() {
-        frontLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        frontRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        backRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        frontLeft.setPower(0);
-        frontRight.setPower(0);
-        backLeft.setPower(0);
-        backRight.setPower(0);
-        frontLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        frontRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        backRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-    }
-
     public void redAuton() {
-        goForward(50, 12);
-        stopResetDrive();
     }
 
     public void blueAuton() {
-        goForward(50, 12);
-        stopResetDrive();
     }
 }

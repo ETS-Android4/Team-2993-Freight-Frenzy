@@ -1,23 +1,16 @@
 package org.firstinspires.ftc.team2993;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
-import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name = "TeleOp")
 public class TestOpMode extends OpMode {
-    double deadZoneX;
-    double deadZoneY;
     private final ElapsedTime runtime = new ElapsedTime();
+    double deadZoneSX;
+    double deadZoneSY;
     private DcMotorEx frontRight = null, backRight = null, backLeft = null, frontLeft = null, lift = null, intake = null, turn = null;
-    private DistanceSensor distanceLeft, distanceRight;
-    private TouchSensor liftTouch;
-    private BNO055IMU imu;
     @Override
     public void init() {
         telemetry.addData("Status", "Initializing");
@@ -35,12 +28,6 @@ public class TestOpMode extends OpMode {
         intake.setDirection(DcMotorEx.Direction.FORWARD);
         turn = hardwareMap.get(DcMotorEx.class, "MotorE2");
         turn.setDirection(DcMotorEx.Direction.FORWARD);
-        //distanceLeft = hardwareMap.get(DistanceSensor.class, "Distance1");
-        //distanceRight = hardwareMap.get(DistanceSensor.class, "Distance2");
-        //liftTouch = hardwareMap.get(TouchSensor.class, "Touch1");
-        imu = hardwareMap.get(BNO055IMU.class, "IMU");
-        BNO055IMU.Parameters params = new BNO055IMU.Parameters();
-        imu.initialize(params);
         telemetry.addData("Status", "Initialized");
         telemetry.update();
     }
@@ -56,60 +43,36 @@ public class TestOpMode extends OpMode {
 
     @Override
     public void loop() {
-        lift(1);
-        drive(.85);
-        intake(1);
-        turn(1);
+        liftOp(.5);
+        driveOp(.85);
+        intakeOp(.75);
+        turnOp(1);
         telemetry.addData("Status", "Run Time: " + runtime.toString());
-        telemetry.addData("Status", "Running");
         telemetry.update();
     }
 
-    public void reset() {
-        lift.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        lift.setPower(0);
-        lift.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-    }
-    public void drive(double driveSpeed) {
+    public void driveOp(double driveSpeed) {
         if (Math.abs(gamepad1.right_stick_x) > .05) {
-            deadZoneY = gamepad1.right_stick_x;
-        } else if(Math.abs(gamepad1.left_stick_y) > .05){
-            deadZoneX = -gamepad1.left_stick_y;
-        } else{
-            deadZoneX = 0;
-            deadZoneY = 0;
-        }
-        final double left = deadZoneX + deadZoneY;
-        final double right = deadZoneX - deadZoneY;
-        frontLeft.setPower(left*driveSpeed);
-        backLeft.setPower(left*driveSpeed);
-        frontRight.setPower(right*driveSpeed);
-        backRight.setPower(right*driveSpeed);
-    }
-
-    public void lift(double speed){
-        double deadZoneA;
-        double deadZoneY;
-        if (gamepad1.a) {
-            deadZoneA = 1;
-            deadZoneY = 0;
-        } else if (gamepad1.y) {
-            deadZoneY = -1;
-            deadZoneA = 0;
+            deadZoneSY = gamepad1.right_stick_x;
+        } else if (Math.abs(gamepad1.left_stick_y) > .05) {
+            deadZoneSX = gamepad1.left_stick_y;
         } else {
-            deadZoneA = 0;
-            deadZoneY = 0;
+            deadZoneSX = 0;
+            deadZoneSY = 0;
         }
-        final double v1 = deadZoneA + deadZoneY;
-        lift.setPower(v1 * speed);
+        final double left = deadZoneSX + deadZoneSY;
+        final double right = deadZoneSX - deadZoneSY;
+        frontLeft.setPower(left * driveSpeed);
+        backLeft.setPower(left * driveSpeed);
+        frontRight.setPower(right * driveSpeed);
+        backRight.setPower(right * driveSpeed);
     }
 
-    public void intake(double speed) {
+    public void intakeOp(double speed) {
         double deadZoneRT = 0;
         double deadZoneLT = 0;
         if (gamepad1.right_trigger > .05) {
-            deadZoneRT = gam
-        epad1.right_trigger;
+            deadZoneRT = gamepad1.right_trigger;
             deadZoneLT = 0;
         } else if (gamepad1.left_trigger > .05) {
             deadZoneLT = -gamepad1.left_trigger;
@@ -119,7 +82,7 @@ public class TestOpMode extends OpMode {
         intake.setPower(v1 * speed);
     }
 
-    public void turn(double speed) {
+    public void turnOp(double speed) {
         double deadZoneA;
         double deadZoneX;
         if (gamepad1.b) {
@@ -134,5 +97,22 @@ public class TestOpMode extends OpMode {
         }
         final double v1 = deadZoneA + deadZoneX;
         turn.setPower(v1 * speed);
+    }
+
+    public void liftOp(double speed) {
+        double deadZoneA;
+        double deadZoneY;
+        if (gamepad1.a) {
+            deadZoneA = 1;
+            deadZoneY = 0;
+        } else if (gamepad1.y) {
+            deadZoneY = -1;
+            deadZoneA = 0;
+        } else{
+            deadZoneA = 0;
+            deadZoneY = 0;
+        }
+        final double v1 = deadZoneA + deadZoneY;
+        lift.setPower(v1 * speed);
     }
 }

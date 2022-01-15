@@ -2,7 +2,6 @@ package org.firstinspires.ftc.team2993;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -16,13 +15,13 @@ public class RedAuton extends OpMode {
     public void init() {
         telemetry.addData("Status", "Initializing");
         frontRight = hardwareMap.get(DcMotorEx.class, "MotorC0");
-        frontRight.setDirection(DcMotorEx.Direction.REVERSE);
+        frontRight.setDirection(DcMotorEx.Direction.FORWARD);
         backRight = hardwareMap.get(DcMotorEx.class, "MotorC1");
-        backRight.setDirection(DcMotorEx.Direction.REVERSE);
+        backRight.setDirection(DcMotorEx.Direction.FORWARD);
         backLeft = hardwareMap.get(DcMotorEx.class, "MotorC2");
-        backLeft.setDirection(DcMotorEx.Direction.FORWARD);
+        backLeft.setDirection(DcMotorEx.Direction.REVERSE);
         frontLeft = hardwareMap.get(DcMotorEx.class, "MotorC3");
-        frontLeft.setDirection(DcMotorEx.Direction.FORWARD);
+        frontLeft.setDirection(DcMotorEx.Direction.REVERSE);
         telemetry.addData("Status", "Initialized");
         telemetry.update();
     }
@@ -33,7 +32,7 @@ public class RedAuton extends OpMode {
 
     @Override
     public void start() {
-        goForward(50,48);
+        goForward(.5,48);
     }
 
     @Override
@@ -48,10 +47,6 @@ public class RedAuton extends OpMode {
         backRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         backLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         frontLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         int target = (int) (in * cpi);
         frontRight.setTargetPosition(target);
         backRight.setTargetPosition(target);
@@ -61,6 +56,10 @@ public class RedAuton extends OpMode {
         backRight.setPower(speed);
         backLeft.setPower(speed);
         frontLeft.setPower(speed);
+        frontRight.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        backRight.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        backLeft.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        frontLeft.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         while (frontRight.isBusy() && backRight.isBusy() && frontLeft.isBusy() && backLeft.isBusy()) {
             telemetry.addData("Status:", "Forwards");
         }
