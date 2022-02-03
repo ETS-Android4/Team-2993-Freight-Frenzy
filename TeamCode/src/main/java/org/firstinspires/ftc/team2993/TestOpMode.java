@@ -3,6 +3,7 @@ package org.firstinspires.ftc.team2993;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name = "Test Op Mode (Working)")
@@ -15,13 +16,13 @@ public class TestOpMode extends OpMode {
     public void init() {
         telemetry.addData("Status", "Initializing");
         frontRight = hardwareMap.get(DcMotorEx.class, "MotorC0");
-        frontRight.setDirection(DcMotorEx.Direction.FORWARD);
+        frontRight.setDirection(DcMotorEx.Direction.REVERSE);
         backRight = hardwareMap.get(DcMotorEx.class, "MotorC1");
-        backRight.setDirection(DcMotorEx.Direction.FORWARD);
+        backRight.setDirection(DcMotorEx.Direction.REVERSE);
         backLeft = hardwareMap.get(DcMotorEx.class, "MotorC2");
-        backLeft.setDirection(DcMotorEx.Direction.REVERSE);
+        backLeft.setDirection(DcMotorEx.Direction.FORWARD);
         frontLeft = hardwareMap.get(DcMotorEx.class, "MotorC3");
-        frontLeft.setDirection(DcMotorEx.Direction.REVERSE);
+        frontLeft.setDirection(DcMotorEx.Direction.FORWARD);
         lift = hardwareMap.get(DcMotorEx.class, "MotorE0");
         lift.setDirection(DcMotorEx.Direction.REVERSE);
         intake = hardwareMap.get(DcMotorEx.class, "MotorE1");
@@ -53,7 +54,7 @@ public class TestOpMode extends OpMode {
 
     public void driveOp(double driveSpeed) {
         if (Math.abs(gamepad1.right_stick_x) > .05) {
-            deadZoneSY = gamepad1.right_stick_x;
+            deadZoneSY = -gamepad1.right_stick_x;
         } else if (Math.abs(gamepad1.left_stick_y) > .05) {
             deadZoneSX = gamepad1.left_stick_y;
         } else {

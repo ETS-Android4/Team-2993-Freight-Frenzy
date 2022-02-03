@@ -35,10 +35,14 @@ public class TeleOp extends OpMode {
     }
 
     public void start() {
-        runtime.reset();
+        robot.reset();
     }
 
     public void loop() {
+        robot.normalDriveOp(.85);
+        robot.turnOp(1);
+        robot.intakeOp(.9);
+        robot.liftOp(.6);
         telemetry.addData("Status", "Run Time: " + runtime.toString());
         telemetry.addData("Status:", "Running the Tele-Operation Functions");
         telemetry.update();
