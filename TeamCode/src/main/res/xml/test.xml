@@ -8,9 +8,6 @@
         </LynxModule>
         <LynxModule name="Control Hub" port="173">
             <LynxEmbeddedIMU name="IMU" port="0" bus="0" />
-            <!--<REV_VL53L0X_RANGE_SENSOR name="Distance1" port="0" bus="1" /><TODO - Use port 2?
-            <REV_VL53L0X_RANGE_SENSOR name="Distance2" port="0" bus="2" /><TODO - Use port 3?
-            <REVTouchSensor name="Touch1" port = ""/>TODO - Find the correct port-->
             <NeveRest60Gearmotor name="MotorC0" port="0" />
             <NeveRest60Gearmotor name="MotorC1" port="1" />
             <NeveRest60Gearmotor name="MotorC2" port="2" />
