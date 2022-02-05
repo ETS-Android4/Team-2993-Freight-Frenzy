@@ -2,18 +2,12 @@ package org.firstinspires.ftc.team2993;
 
 import androidx.annotation.NonNull;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+
 
 public class Hardware {
     //Counts per 1 motor encoder revolution//
@@ -54,9 +48,6 @@ public class Hardware {
         turner = map.get(DcMotorEx.class, "MotorE2");
         turner.setDirection(DcMotorEx.Direction.FORWARD);
         liftTouch = map.get(TouchSensor.class, "Touch1");
-        //imu = map.get(BNO055IMU.class, "IMU");
-        //BNO055IMU.Parameters params = new BNO055IMU.Parameters();
-        //imu.initialize(params);
     }
 
     //Custom Functions//
@@ -209,7 +200,7 @@ public class Hardware {
         int target = (int) (in * cpi);
         intake.setTargetPosition(target);
         intake.setPower(speed);
-        while (intake.isBusy() {
+        while (intake.isBusy()) {
             status = "intake";
         }
         intake.setPower(0);
@@ -269,11 +260,11 @@ public class Hardware {
         int target = (int) (in * cpi);
         frontRight.setTargetPosition(target);
         backRight.setTargetPosition(target);
-        backLeft.setTargetPosition(target);
-        frontLeft.setTargetPosition(target);
-        frontRight.setPower(-speed);
+        backLeft.setTargetPosition(-target);
+        frontLeft.setTargetPosition(-target);
+        frontRight.setPower(speed);
         backRight.setPower(speed);
-        backLeft.setPower(-speed);
+        backLeft.setPower(speed);
         frontLeft.setPower(speed);
         while (frontRight.isBusy() && backRight.isBusy() && frontLeft.isBusy() && backLeft.isBusy()) {
             status = "Turning Left";

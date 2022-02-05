@@ -31,7 +31,8 @@ public class BlueAuton extends OpMode {
         robot.goForward(1, 5);
         robot.reset();
         robot.intake(-1,9);
-
+        robot.reset();
+        robot.goBackward(-1,70);
     }
 
     @Override
